@@ -50,14 +50,14 @@ const PageLayout = (props: {
                 alignSelf={"center"}
                 marginRight={10}
               >
-                <Link href={"/posts/create"} className="link">
-                  <Heading level={5}>Create</Heading>
+                <Link href={"/"} className="link">
+                  <Heading level={6}>HOME</Heading>
                 </Link>
-                <Link href={"/posts/view"} className="link">
-                  <Heading level={5}>View</Heading>
+                <Link href={"/posts/create"} className="link">
+                  <Heading level={6}>CREATE</Heading>
                 </Link>
                 <Link href={"#"} className="link" onClick={signOut}>
-                  <Heading level={5}>Sign Out</Heading>
+                  <Heading level={6}>SIGNOUT</Heading>
                 </Link>
               </Flex>
             </Flex>

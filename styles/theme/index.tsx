@@ -10,10 +10,12 @@ export const theme: Theme = {
       font: {
         primary: { value: "#008080" },
         secondary: { value: "#333333" },
+        tertiary: { value: "#f3f3f3" },
       },
       background: {
         primary: "#ffffff",
         secondary: "#008080",
+        tertiary: "#333333",
       },
     },
   },
