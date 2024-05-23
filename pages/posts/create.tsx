@@ -1,6 +1,8 @@
 import PageLayout from "@/components/layouts/page";
+import UploadFile from "@/components/upload";
 import {
   Button,
+  Divider,
   Flex,
   Grid,
   Heading,
@@ -20,13 +22,37 @@ const initialTypeState = {
   paragraph: true,
 };
 
+const initialContentState = {
+  image: "",
+  video: "",
+  h1: "",
+  h2: "",
+  h3: "",
+  paragraph: "",
+};
+
 const CreatePost = () => {
   const [type, setType] = useState<{ [key: string]: boolean }>(
     initialTypeState
   );
+  const [content, setContent] = useState<{ [key: string]: string }>(
+    initialContentState
+  );
+  const [elements, setElements] = useState<{ [key: string]: string }[]>([]);
 
   const setContentType = (key: string) => {
     setType({ ...type, [key]: !type[key] });
+  };
+
+  const addContent = (key: string) => {
+    const keyContent = content[key];
+    if (!keyContent) {
+      return;
+    }
+
+    setElements([...elements, { key, value: keyContent }]);
+    setContent({ ...content, [key]: "" });
+    key !== "paragraph" && setContentType(key);
   };
 
   return (
@@ -102,13 +128,21 @@ const CreatePost = () => {
               <Label htmlFor="image" fontSize={"1rem"}>
                 Upload Image:
               </Label>
-              <Input
-                id="image"
-                name="image"
-                placeholder="Enter Image"
-                fontSize={"1rem"}
-                required={false}
-              />
+              <UploadFile acceptedFileTypes={["image/png", "image/jpeg"]} />
+              <Flex direction="row" gap="small">
+                <Input
+                  id="image"
+                  name="image"
+                  placeholder="Enter Image"
+                  fontSize={"1rem"}
+                  required={false}
+                  value={content.image}
+                  onChange={(e) =>
+                    setContent({ ...content, image: e.target.value })
+                  }
+                />
+                <Button onClick={() => addContent("image")}>ADD</Button>
+              </Flex>
             </Flex>
           </View>
         )}
@@ -118,13 +152,20 @@ const CreatePost = () => {
               <Label htmlFor="video" fontSize={"1rem"}>
                 Upload Video:
               </Label>
-              <Input
-                id="video"
-                name="video"
-                placeholder="Enter Video"
-                fontSize={"1rem"}
-                required={false}
-              />
+              <Flex direction="row" gap="small">
+                <Input
+                  id="video"
+                  name="video"
+                  placeholder="Enter Video"
+                  fontSize={"1rem"}
+                  required={false}
+                  value={content.video}
+                  onChange={(e) =>
+                    setContent({ ...content, video: e.target.value })
+                  }
+                />
+                <Button onClick={() => addContent("video")}>ADD</Button>
+              </Flex>
             </Flex>
           </View>
         )}
@@ -134,13 +175,20 @@ const CreatePost = () => {
               <Label htmlFor="heading1" fontSize={"4rem"}>
                 Heading 1:
               </Label>
-              <Input
-                id="heading1"
-                name="heading1"
-                placeholder="Enter Heading 1"
-                fontSize={"4rem"}
-                required={false}
-              />
+              <Flex direction="row" gap="small">
+                <Input
+                  id="heading1"
+                  name="heading1"
+                  placeholder="Enter Heading 1"
+                  fontSize={"4rem"}
+                  required={false}
+                  value={content.h1}
+                  onChange={(e) =>
+                    setContent({ ...content, h1: e.target.value })
+                  }
+                />
+                <Button onClick={() => addContent("h1")}>ADD</Button>
+              </Flex>
             </Flex>
           </View>
         )}
@@ -150,13 +198,20 @@ const CreatePost = () => {
               <Label htmlFor="heading2" fontSize={"3rem"}>
                 Heading 2:
               </Label>
-              <Input
-                id="heading2"
-                name="heading2"
-                placeholder="Enter Heading 2"
-                fontSize={"3rem"}
-                required={false}
-              />
+              <Flex direction="row" gap="small">
+                <Input
+                  id="heading2"
+                  name="heading2"
+                  placeholder="Enter Heading 2"
+                  fontSize={"3rem"}
+                  required={false}
+                  value={content.h2}
+                  onChange={(e) =>
+                    setContent({ ...content, h2: e.target.value })
+                  }
+                />
+                <Button onClick={() => addContent("h2")}>ADD</Button>
+              </Flex>
             </Flex>
           </View>
         )}
@@ -166,24 +221,54 @@ const CreatePost = () => {
               <Label htmlFor="heading3" fontSize={"2rem"}>
                 Heading 3:
               </Label>
-              <Input
-                id="heading3"
-                name="heading3"
-                placeholder="Enter Heading 3"
-                fontSize={"2rem"}
-                required={false}
-              />
+              <Flex direction="row" gap="small">
+                <Input
+                  id="heading3"
+                  name="heading3"
+                  placeholder="Enter Heading 3"
+                  fontSize={"2rem"}
+                  required={false}
+                  value={content.h3}
+                  onChange={(e) =>
+                    setContent({ ...content, h3: e.target.value })
+                  }
+                />
+                <Button onClick={() => addContent("h3")}>ADD</Button>
+              </Flex>
             </Flex>
           </View>
         )}
         {type.paragraph && (
           <View marginLeft={10} marginTop={10} marginRight={10}>
-            <TextAreaField
-              label="Enter Content:"
-              name="paragraph"
-              placeholder="Paragraph Content"
-              rows={3}
-            />
+            <Flex direction="column" gap="small">
+              <Label htmlFor="paragraph" fontSize={"1rem"}>
+                Enter Content:
+              </Label>
+              <TextAreaField
+                label={null}
+                name="paragraph"
+                placeholder="Paragraph Content"
+                rows={3}
+                value={content.paragraph}
+                onChange={(e) =>
+                  setContent({ ...content, paragraph: e.target.value })
+                }
+              />
+              <Button onClick={() => addContent("paragraph")}>ADD</Button>
+            </Flex>
+          </View>
+        )}
+        {elements.length > 0 && (
+          <View marginLeft={10} marginTop={10}>
+            <Heading
+              level={5}
+              color={"font.secondary"}
+              marginTop={10}
+              marginBottom={10}
+            >
+              Added Content
+            </Heading>
+            <Flex direction={"column"}>{JSON.stringify(elements)}</Flex>
           </View>
         )}
         <View marginLeft={10} marginTop={10} marginRight={10}>
