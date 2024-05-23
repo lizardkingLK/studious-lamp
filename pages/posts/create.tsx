@@ -2,7 +2,6 @@ import PageLayout from "@/components/layouts/page";
 import UploadFile from "@/components/upload";
 import {
   Button,
-  Divider,
   Flex,
   Grid,
   Heading,
@@ -12,6 +11,10 @@ import {
   View,
 } from "@aws-amplify/ui-react";
 import React, { useState } from "react";
+import { generateClient } from "aws-amplify/data";
+import { Schema } from "@/amplify/data/resource";
+
+const client = generateClient<Schema>();
 
 const initialTypeState = {
   image: false,
@@ -32,6 +35,7 @@ const initialContentState = {
 };
 
 const CreatePost = () => {
+  const [title, setTitle] = useState<string>("");
   const [type, setType] = useState<{ [key: string]: boolean }>(
     initialTypeState
   );
@@ -55,6 +59,42 @@ const CreatePost = () => {
     key !== "paragraph" && setContentType(key);
   };
 
+  const createNews = () => {
+    if (!title) {
+      return;
+    }
+
+    client.models.News.create({
+      title,
+      content: elements,
+    });
+
+    // console.log({
+    //   title,
+    //   content: elements,
+    // });
+  };
+
+  const shiftUp = (index: number) => {
+    const item = elements[index];
+    const newIndex = index === 0 ? elements.length - 1 : index - 1;
+    const oldItem = elements[newIndex];
+    elements[newIndex] = item;
+    elements[index] = oldItem;
+
+    console.log({ elements });
+
+    // setElements(elements);
+  };
+
+  const shiftDown = (index: number) => {
+    console.log({ index });
+  };
+
+  const removeItem = (index: number) => {
+    setElements(elements.filter((_: any, i: number) => i !== index));
+  };
+
   return (
     <PageLayout title="Create News">
       <View marginLeft={10} marginTop={10}>
@@ -74,6 +114,8 @@ const CreatePost = () => {
               name="title"
               placeholder="Enter Title"
               required={true}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
             />
           </Flex>
         </View>
@@ -258,20 +300,53 @@ const CreatePost = () => {
             </Flex>
           </View>
         )}
-        {elements.length > 0 && (
+        {title && elements.length > 0 && (
           <View marginLeft={10} marginTop={10}>
             <Heading
               level={5}
               color={"font.secondary"}
-              marginTop={10}
+              marginTop={20}
               marginBottom={10}
             >
-              Added Content
+              Preview
             </Heading>
-            <Flex direction={"column"}>{JSON.stringify(elements)}</Flex>
+            <View
+              border={"dashed"}
+              borderWidth={".125rem"}
+              borderColor={"border.primary"}
+              marginRight={10}
+            >
+              <Flex direction={"column"} padding={10}>
+                <View fontSize={"2rem"}>{title}</View>
+                {elements.map(({ key, value }, index) => (
+                  <Flex
+                    key={index}
+                    direction={"row"}
+                    gap={"small"}
+                    justifyContent={"space-between"}
+                    alignItems={"center"}
+                  >
+                    <View>
+                      {key} {value}
+                    </View>
+                    <Flex gap={"small"}>
+                      <Button padding={0} onClick={() => shiftUp(index)}>
+                        🔼
+                      </Button>
+                      <Button padding={0} onClick={() => shiftDown(index)}>
+                        🔽
+                      </Button>
+                      <Button padding={0} onClick={() => removeItem(index)}>
+                        ❎
+                      </Button>
+                    </Flex>
+                  </Flex>
+                ))}
+              </Flex>
+            </View>
           </View>
         )}
-        <View marginLeft={10} marginTop={10} marginRight={10}>
+        <View marginLeft={10} marginTop={20} marginRight={10}>
           <Flex justifyContent={"flex-end"}>
             <Button>Cancel</Button>
             <Button
@@ -283,6 +358,7 @@ const CreatePost = () => {
             <Button
               backgroundColor={"background.secondary"}
               color={"font.tertiary"}
+              onClick={createNews}
             >
               Publish
             </Button>

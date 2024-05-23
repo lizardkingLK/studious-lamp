@@ -1,5 +1,6 @@
 import {
   Authenticator,
+  Button,
   Divider,
   Flex,
   Heading,
@@ -21,7 +22,7 @@ const PageLayout = (props: {
 
   return (
     <Authenticator className="container">
-      {({ signOut, user }) => (
+      {({ signOut }) => (
         <Fragment>
           <Head>
             <title>Studious - {title}</title>
@@ -56,9 +57,9 @@ const PageLayout = (props: {
                 <Link href={"/posts/create"} className="link">
                   <Heading level={6}>CREATE</Heading>
                 </Link>
-                <Link href={"#"} className="link" onClick={signOut}>
+                <Button className="link" onClick={signOut} border={"none"}>
                   <Heading level={6}>SIGNOUT</Heading>
-                </Link>
+                </Button>
               </Flex>
             </Flex>
             <Divider size="large" />
