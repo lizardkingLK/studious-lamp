@@ -11,24 +11,13 @@ import LoaderBar from "@/components/loader";
 const client = generateClient<Schema>();
 
 export default function App() {
-  const [todos, setTodos] = useState<Array<Schema["Todo"]["type"]>>([]);
   const [news, setNews] = useState<Array<Schema["News"]["type"]>>([]);
-
-  function listTodos() {
-    client.models.Todo.observeQuery().subscribe({
-      next: (data) => setTodos([...data.items]),
-    });
-  }
 
   const listNews = () => {
     client.models.News.observeQuery().subscribe({
       next: (data) => setNews([...data.items]),
     });
   };
-
-  function deleteTodo(id: string) {
-    client.models.Todo.delete({ id });
-  }
 
   useEffect(() => {
     listNews();
