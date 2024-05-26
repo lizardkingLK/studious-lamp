@@ -64,15 +64,12 @@ const CreatePost = () => {
       return;
     }
 
-    client.models.News.create({
+    const createNewsResponse = client.models.News.create({
       title,
-      content: elements,
+      content: JSON.stringify(elements),
     });
 
-    // console.log({
-    //   title,
-    //   content: elements,
-    // });
+    console.log({ createNewsResponse });
   };
 
   const shiftUp = (index: number) => {
