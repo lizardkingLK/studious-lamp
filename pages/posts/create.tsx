@@ -1,6 +1,7 @@
 import PageLayout from "@/components/layouts/page";
 import UploadFile from "@/components/upload";
 import {
+  Alert,
   Button,
   Flex,
   Grid,
@@ -13,8 +14,21 @@ import {
 import React, { useState } from "react";
 import { generateClient } from "aws-amplify/data";
 import { Schema } from "@/amplify/data/resource";
+import NewsContent from "@/components/layouts/preview";
+import { useRouter } from "next/router";
 
 const client = generateClient<Schema>();
+
+enum alertTypes {
+  success = "success",
+  error = "error",
+  warning = "warning",
+}
+
+type alertType = {
+  type: alertTypes;
+  heading: string;
+};
 
 const initialTypeState = {
   image: false,
@@ -35,6 +49,7 @@ const initialContentState = {
 };
 
 const CreatePost = () => {
+  const router = useRouter();
   const [title, setTitle] = useState<string>("");
   const [type, setType] = useState<{ [key: string]: boolean }>(
     initialTypeState
@@ -43,12 +58,20 @@ const CreatePost = () => {
     initialContentState
   );
   const [elements, setElements] = useState<{ [key: string]: string }[]>([]);
+  const [alert, setAlert] = useState<alertType | null>();
 
   const setContentType = (key: string) => {
     setType({ ...type, [key]: !type[key] });
   };
 
   const addContent = (key: string) => {
+    if (!title) {
+      toggleAlert({
+        heading: "Please enter title to preview!",
+        type: alertTypes.warning,
+      });
+    }
+
     const keyContent = content[key];
     if (!keyContent) {
       return;
@@ -59,41 +82,77 @@ const CreatePost = () => {
     key !== "paragraph" && setContentType(key);
   };
 
-  const createNews = () => {
+  const createNews = async () => {
     if (!title) {
+      toggleAlert({
+        heading: "Please enter good content!",
+        type: alertTypes.error,
+      });
       return;
     }
 
-    const createNewsResponse = client.models.News.create({
+    const createNewsResponse = await client.models.News.create({
       title,
       content: JSON.stringify(elements),
     });
 
-    console.log({ createNewsResponse });
+    const errors = createNewsResponse?.errors;
+    if (errors) {
+      toggleAlert({
+        heading: errors.map((error) => error.message).join("\n"),
+        type: alertTypes.error,
+      });
+      return;
+    }
+
+    setElements([]);
+    setContent(initialContentState);
+    setType(initialTypeState);
+    toggleAlert({
+      heading: "News Created Successfully!",
+      type: alertTypes.success,
+    });
   };
 
   const shiftUp = (index: number) => {
-    const item = elements[index];
-    const newIndex = index === 0 ? elements.length - 1 : index - 1;
-    const oldItem = elements[newIndex];
-    elements[newIndex] = item;
-    elements[index] = oldItem;
-
-    console.log({ elements });
-
-    // setElements(elements);
+    const items = Object.create(elements),
+      item = items[index],
+      newIndex = index === 0 ? items.length - 1 : index - 1,
+      oldItem = items[newIndex];
+    items[newIndex] = item;
+    items[index] = oldItem;
+    setElements(items);
   };
 
   const shiftDown = (index: number) => {
-    console.log({ index });
+    const items = Object.create(elements),
+      item = items[index],
+      newIndex = index === items.length - 1 ? 0 : index + 1,
+      oldItem = items[newIndex];
+    items[newIndex] = item;
+    items[index] = oldItem;
+    setElements(items);
   };
 
   const removeItem = (index: number) => {
     setElements(elements.filter((_: any, i: number) => i !== index));
   };
 
+  const toggleAlert = (type: alertType) => {
+    setAlert(type);
+  };
+
   return (
     <PageLayout title="Create News">
+      {alert && (
+        <Alert
+          isDismissible={true}
+          variation={alert.type}
+          onDismiss={() => setAlert(null)}
+        >
+          {alert.heading}
+        </Alert>
+      )}
       <View marginLeft={10} marginTop={10}>
         <Heading level={3} color={"black"}>
           Create News
@@ -314,7 +373,11 @@ const CreatePost = () => {
               marginRight={10}
             >
               <Flex direction={"column"} padding={10}>
-                <View fontSize={"2rem"}>{title}</View>
+                <View fontSize={"2rem"}>
+                  <Heading level={1} fontWeight={800}>
+                    {title}
+                  </Heading>
+                </View>
                 {elements.map(({ key, value }, index) => (
                   <Flex
                     key={index}
@@ -323,9 +386,7 @@ const CreatePost = () => {
                     justifyContent={"space-between"}
                     alignItems={"center"}
                   >
-                    <View>
-                      {key} {value}
-                    </View>
+                    <NewsContent type={key} content={value} />
                     <Flex gap={"small"}>
                       <Button padding={0} onClick={() => shiftUp(index)}>
                         🔼
@@ -343,9 +404,9 @@ const CreatePost = () => {
             </View>
           </View>
         )}
-        <View marginLeft={10} marginTop={20} marginRight={10}>
+        <View margin={10}>
           <Flex justifyContent={"flex-end"}>
-            <Button>Cancel</Button>
+            <Button onClick={() => router.push("/")}>Cancel</Button>
             <Button
               backgroundColor={"background.tertiary"}
               color={"font.tertiary"}
