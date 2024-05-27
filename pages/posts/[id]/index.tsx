@@ -50,6 +50,21 @@ const ViewNews = () => {
     return null;
   }
 
+  const convertObject = (
+    content: Object | Array<{ [key: string]: string }>
+  ) => {
+    if (Array.isArray(content)) {
+      return content;
+    } else {
+      return Object.entries(content).reduce((r, [key, value]) => {
+        Object.values(value).forEach((val, i) => {
+          r[i] = { ...(r[i] || {}), [key]: val };
+        });
+        return r;
+      });
+    }
+  };
+
   return (
     <PageLayout title={title}>
       <Flex direction={"column"} gap={"small"} marginLeft={10} marginTop={10}>
@@ -57,7 +72,7 @@ const ViewNews = () => {
         <Heading level={6} color={"font.secondary"}>
           {new Date(news.createdAt).toLocaleDateString()}
         </Heading>
-        {Array.from(newsContent)?.map((element, index) => (
+        {convertObject(newsContent)?.map((element, index) => (
           <NewsContent key={index} content={element.value} type={element.key} />
         ))}
       </Flex>
