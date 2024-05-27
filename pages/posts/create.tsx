@@ -16,6 +16,7 @@ import { generateClient } from "aws-amplify/data";
 import { Schema } from "@/amplify/data/resource";
 import NewsContent from "@/components/layouts/preview";
 import { useRouter } from "next/router";
+import { uploadData } from "aws-amplify/storage";
 
 const client = generateClient<Schema>();
 
@@ -59,6 +60,7 @@ const CreatePost = () => {
   );
   const [elements, setElements] = useState<{ [key: string]: string }[]>([]);
   const [alert, setAlert] = useState<alertType | null>();
+  const [images, setImages] = useState<never[] | File[]>([]);
 
   const setContentType = (key: string) => {
     setType({ ...type, [key]: !type[key] });
@@ -140,6 +142,14 @@ const CreatePost = () => {
 
   const toggleAlert = (type: alertType) => {
     setAlert(type);
+  };
+
+  const uploadFile = async (file: File) => {
+    const uploadResult = uploadData({
+      data: file,
+      path: `news-files/${file.name}`,
+    });
+    console.log({ uploadResult });
   };
 
   return (
@@ -226,7 +236,12 @@ const CreatePost = () => {
               <Label htmlFor="image" fontSize={"1rem"}>
                 Upload Image:
               </Label>
-              <UploadFile acceptedFileTypes={["image/png", "image/jpeg"]} />
+              <UploadFile
+                acceptedFileTypes={["image/png", "image/jpeg"]}
+                files={images}
+                setFiles={setImages}
+                uploadFile={uploadFile}
+              />
               <Flex direction="row" gap="small">
                 <Input
                   id="image"

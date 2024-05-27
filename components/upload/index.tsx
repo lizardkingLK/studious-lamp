@@ -6,14 +6,19 @@ import {
   Text,
   VisuallyHidden,
 } from "@aws-amplify/ui-react";
-import { Fragment, useState } from "react";
+import { Fragment } from "react";
 
 export default function UploadFile({
   acceptedFileTypes,
+  files,
+  setFiles,
+  uploadFile,
 }: {
   acceptedFileTypes: string[];
+  files: never[] | File[];
+  setFiles: React.Dispatch<React.SetStateAction<never[] | File[]>>;
+  uploadFile: (file: File) => void;
 }) {
-  const [files, setFiles] = useState<never[] | File[]>([]);
   const hiddenInput = React.useRef<HTMLInputElement | null>(null);
 
   const onFilePickerChange = (event: { target: { files: any } }) => {
@@ -50,7 +55,15 @@ export default function UploadFile({
         </VisuallyHidden>
       </DropZone>
       {files.map((file) => (
-        <Text key={file.name}>{file.name}</Text>
+        <Flex
+          key={file.name}
+          direction={"row"}
+          gap={"small"}
+          justifyContent={"space-between"}
+        >
+          <Text color={"font.secondary"}>{file.name}</Text>
+          <Button onClick={() => uploadFile(file)}>ADD</Button>
+        </Flex>
       ))}
     </Fragment>
   );
