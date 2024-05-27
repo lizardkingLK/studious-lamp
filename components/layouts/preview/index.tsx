@@ -16,7 +16,9 @@ const NewsContent = (props: { type: string; content: string }) => {
     case "url":
       return (
         <View>
-          <Link href={content}>Click 🌐</Link>
+          <Link href={content} title={content}>
+            🌐
+          </Link>
         </View>
       );
 

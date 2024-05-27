@@ -33,11 +33,11 @@ export default function App() {
   };
 
   const handleRemove = (id: string) => {
-    console.log({ id });
+    client.models.News.delete({ id });
   };
 
   const markAsPublished = (id: string) => {
-    console.log({ id });
+    client.models.News.update({ id, status: statuses.publish });
   };
 
   const getUserId = async () => {
@@ -86,34 +86,43 @@ export default function App() {
 
         return (
           <View key={id} margin={10}>
-            <Link href={`/posts/${id}`} className="link">
-              <Flex direction={"column"} gap={"large"}>
-                <Heading level={4}>{title}</Heading>
-                <NewsContent content={element.value} type={element.key} />
+            <Flex direction={"column"} gap={"large"}>
+              <Heading level={4}>{title}</Heading>
+              <NewsContent content={element.value} type={element.key} />
+              <Link href={`/posts/${id}`} className="link">
                 <Heading level={6} textAlign={"right"}>
                   Read More...
                 </Heading>
-                <Flex
-                  direction={"row"}
-                  gap={"small"}
-                  alignItems={"center"}
-                  justifyContent={"flex-end"}
-                  marginBottom={10}
-                >
-                  {status === statuses.draft && (
-                    <Button onClick={() => markAsPublished(id)}>✅</Button>
-                  )}
-                  {createdBy === userId && (
-                    <Button onClick={() => handleRemove(id)}>❌</Button>
-                  )}
-                  {userId + " " + createdBy}
-                  <Text fontSize={"1rem"} color={"font.secondary"}>
-                    {new Date(createdAt).toLocaleDateString()}
-                  </Text>
-                </Flex>
+              </Link>
+              <Flex
+                direction={"row"}
+                gap={"small"}
+                alignItems={"center"}
+                justifyContent={"flex-end"}
+                marginBottom={10}
+              >
+                {status === statuses.draft && (
+                  <Button
+                    onClick={() => markAsPublished(id)}
+                    title="Mark this Draft As Published"
+                  >
+                    ✅
+                  </Button>
+                )}
+                {createdBy === userId && (
+                  <Button
+                    onClick={() => handleRemove(id)}
+                    title="Remove this Item"
+                  >
+                    ❌
+                  </Button>
+                )}
+                <Text fontSize={"1rem"} color={"font.secondary"}>
+                  {new Date(createdAt).toLocaleDateString()}
+                </Text>
               </Flex>
-              <Divider />
-            </Link>
+            </Flex>
+            <Divider />
           </View>
         );
       })}

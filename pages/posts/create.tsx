@@ -84,7 +84,7 @@ const CreatePost = () => {
     key !== "paragraph" && setContentType(key);
   };
 
-  const createNews = async () => {
+  const createNews = async (status: statuses) => {
     if (!title) {
       toggleAlert({
         heading: "Please enter good content!",
@@ -96,7 +96,7 @@ const CreatePost = () => {
     const createNewsResponse = await client.models.News.create({
       title,
       createdBy: (await getCurrentUser()).userId,
-      status: statuses.publish,
+      status: status,
       content: JSON.stringify(elements),
     });
 
@@ -109,6 +109,7 @@ const CreatePost = () => {
       return;
     }
 
+    setTitle("");
     setElements([]);
     setContent(initialContentState);
     setType(initialTypeState);
@@ -400,13 +401,25 @@ const CreatePost = () => {
                   >
                     <NewsContent type={key} content={value} />
                     <Flex gap={"small"}>
-                      <Button padding={0} onClick={() => shiftUp(index)}>
+                      <Button
+                        padding={0}
+                        onClick={() => shiftUp(index)}
+                        title="Move Up"
+                      >
                         🔼
                       </Button>
-                      <Button padding={0} onClick={() => shiftDown(index)}>
+                      <Button
+                        padding={0}
+                        onClick={() => shiftDown(index)}
+                        title="Move Down"
+                      >
                         🔽
                       </Button>
-                      <Button padding={0} onClick={() => removeItem(index)}>
+                      <Button
+                        padding={0}
+                        onClick={() => removeItem(index)}
+                        title="Remove"
+                      >
                         ❎
                       </Button>
                     </Flex>
@@ -422,13 +435,14 @@ const CreatePost = () => {
             <Button
               backgroundColor={"background.tertiary"}
               color={"font.tertiary"}
+              onClick={() => createNews(statuses.draft)}
             >
               Save Draft
             </Button>
             <Button
               backgroundColor={"background.secondary"}
               color={"font.tertiary"}
-              onClick={createNews}
+              onClick={() => createNews(statuses.publish)}
             >
               Publish
             </Button>
