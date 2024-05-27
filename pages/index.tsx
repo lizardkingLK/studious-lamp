@@ -3,15 +3,28 @@ import { useState, useEffect } from "react";
 import { generateClient } from "aws-amplify/data";
 import type { Schema } from "@/amplify/data/resource";
 import PageLayout from "@/components/layouts/page";
-import { Divider, Flex, Heading, Text, View } from "@aws-amplify/ui-react";
+import {
+  Button,
+  Divider,
+  Flex,
+  Heading,
+  Text,
+  View,
+} from "@aws-amplify/ui-react";
 import Link from "next/link";
 import NewsContent from "@/components/layouts/preview";
-import LoaderBar from "@/components/loader";
+import { getCurrentUser } from "aws-amplify/auth";
 
 const client = generateClient<Schema>();
 
+export enum statuses {
+  draft = 1,
+  publish = 2,
+}
+
 export default function App() {
   const [news, setNews] = useState<Array<Schema["News"]["type"]>>([]);
+  const [userId, setUserId] = useState<string | null>(null);
 
   const listNews = () => {
     client.models.News.observeQuery().subscribe({
@@ -19,11 +32,24 @@ export default function App() {
     });
   };
 
+  const handleRemove = (id: string) => {
+    console.log({ id });
+  };
+
+  const markAsPublished = (id: string) => {
+    console.log({ id });
+  };
+
+  const getUserId = async () => {
+    setUserId((await getCurrentUser())?.userId ?? null);
+  };
+
   useEffect(() => {
     listNews();
+    getUserId();
   }, []);
 
-  if (!news || news.length === 0) {
+  if (!news || news.length === 0 || !userId) {
     return (
       <PageLayout title="Home">
         <Text
@@ -41,7 +67,7 @@ export default function App() {
 
   return (
     <PageLayout title="Home">
-      {news.map(({ id, title, content, createdAt }) => {
+      {news.map(({ id, title, content, createdAt, createdBy, status }) => {
         if (!content) {
           return null;
         }
@@ -67,13 +93,24 @@ export default function App() {
                 <Heading level={6} textAlign={"right"}>
                   Read More...
                 </Heading>
-                <Text
-                  fontSize={"1rem"}
-                  color={"font.secondary"}
-                  textAlign={"right"}
+                <Flex
+                  direction={"row"}
+                  gap={"small"}
+                  alignItems={"center"}
+                  justifyContent={"flex-end"}
+                  marginBottom={10}
                 >
-                  {new Date(createdAt).toLocaleDateString()}
-                </Text>
+                  {status === statuses.draft && (
+                    <Button onClick={() => markAsPublished(id)}>✅</Button>
+                  )}
+                  {createdBy === userId && (
+                    <Button onClick={() => handleRemove(id)}>❌</Button>
+                  )}
+                  {userId + " " + createdBy}
+                  <Text fontSize={"1rem"} color={"font.secondary"}>
+                    {new Date(createdAt).toLocaleDateString()}
+                  </Text>
+                </Flex>
               </Flex>
               <Divider />
             </Link>

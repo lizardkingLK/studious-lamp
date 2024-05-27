@@ -17,6 +17,8 @@ import { Schema } from "@/amplify/data/resource";
 import NewsContent from "@/components/layouts/preview";
 import { useRouter } from "next/router";
 import { uploadData } from "aws-amplify/storage";
+import { getCurrentUser } from "aws-amplify/auth";
+import { statuses } from "..";
 
 const client = generateClient<Schema>();
 
@@ -93,6 +95,8 @@ const CreatePost = () => {
 
     const createNewsResponse = await client.models.News.create({
       title,
+      createdBy: (await getCurrentUser()).userId,
+      status: statuses.publish,
       content: JSON.stringify(elements),
     });
 
