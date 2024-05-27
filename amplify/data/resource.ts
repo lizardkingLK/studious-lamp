@@ -11,6 +11,8 @@ const schema = a.schema({
     .model({
       title: a.string(),
       content: a.json(),
+      createdBy: a.string(),
+      status: a.integer(),
     })
     .authorization((allow) => [allow.publicApiKey()]),
 });

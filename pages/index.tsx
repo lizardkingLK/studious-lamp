@@ -24,7 +24,19 @@ export default function App() {
   }, []);
 
   if (!news || news.length === 0) {
-    return <LoaderBar />;
+    return (
+      <PageLayout title="Home">
+        <Text
+          textAlign={"center"}
+          position={"absolute"}
+          top={"50%"}
+          left={"50%"}
+          transform={"translate(-50%, -50%)"}
+        >
+          No News Yet... ⌛
+        </Text>
+      </PageLayout>
+    );
   }
 
   return (

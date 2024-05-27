@@ -46,7 +46,6 @@ const ViewNews = () => {
   const newsContent: { [key: string]: string }[] = JSON.parse(
     news.content?.toString() ?? "[]"
   );
-  console.log({ her: Array.from(newsContent) });
   if (newsContent.length === 0) {
     return null;
   }

@@ -32,8 +32,7 @@ type alertType = {
 };
 
 const initialTypeState = {
-  image: false,
-  video: false,
+  url: false,
   h1: false,
   h2: false,
   h3: false,
@@ -41,8 +40,7 @@ const initialTypeState = {
 };
 
 const initialContentState = {
-  image: "",
-  video: "",
+  url: "",
   h1: "",
   h2: "",
   h3: "",
@@ -144,12 +142,25 @@ const CreatePost = () => {
     setAlert(type);
   };
 
-  const uploadFile = async (file: File) => {
-    const uploadResult = uploadData({
-      data: file,
-      path: `news-files/${file.name}`,
-    });
-    console.log({ uploadResult });
+  const uploadFile = async (data: File, fileType: string) => {
+    const path = `news-files/${data.name}`,
+      uploadResult = uploadData({
+        data,
+        path,
+      });
+    if (!(await uploadResult.result).path) {
+      toggleAlert({
+        type: alertTypes.error,
+        heading: "Could not upload file!",
+      });
+      return;
+    }
+
+    setElements([...elements, { key: fileType, value: path }]);
+
+    if (fileType === "image") {
+      setImages(images.filter((file: File) => file.name !== data.name));
+    }
   };
 
   return (
@@ -204,10 +215,10 @@ const CreatePost = () => {
               Image
             </Button>
             <Button
-              onClick={() => setContentType("video")}
-              borderWidth={type.video ? ".5rem" : ".01rem"}
+              onClick={() => setContentType("url")}
+              borderWidth={type.url ? ".5rem" : ".01rem"}
             >
-              Video
+              URL
             </Button>
             <Button
               onClick={() => setContentType("h1")}
@@ -237,48 +248,30 @@ const CreatePost = () => {
                 Upload Image:
               </Label>
               <UploadFile
+                fileType="image"
                 acceptedFileTypes={["image/png", "image/jpeg"]}
                 files={images}
                 setFiles={setImages}
                 uploadFile={uploadFile}
               />
-              <Flex direction="row" gap="small">
-                <Input
-                  id="image"
-                  name="image"
-                  placeholder="Enter Image"
-                  fontSize={"1rem"}
-                  required={false}
-                  value={content.image}
-                  onChange={(e) =>
-                    setContent({ ...content, image: e.target.value })
-                  }
-                />
-                <Button onClick={() => addContent("image")}>ADD</Button>
-              </Flex>
             </Flex>
           </View>
         )}
-        {type.video && (
+        {type.url && (
           <View marginLeft={10} marginTop={10} marginRight={10}>
-            <Flex direction="column" gap="small">
-              <Label htmlFor="video" fontSize={"1rem"}>
-                Upload Video:
-              </Label>
-              <Flex direction="row" gap="small">
-                <Input
-                  id="video"
-                  name="video"
-                  placeholder="Enter Video"
-                  fontSize={"1rem"}
-                  required={false}
-                  value={content.video}
-                  onChange={(e) =>
-                    setContent({ ...content, video: e.target.value })
-                  }
-                />
-                <Button onClick={() => addContent("video")}>ADD</Button>
-              </Flex>
+            <Flex direction="row" gap="small">
+              <Input
+                id="url"
+                name="url"
+                placeholder="Enter Url"
+                fontSize={"1rem"}
+                required={false}
+                value={content.url}
+                onChange={(e) =>
+                  setContent({ ...content, url: e.target.value })
+                }
+              />
+              <Button onClick={() => addContent("url")}>ADD</Button>
             </Flex>
           </View>
         )}

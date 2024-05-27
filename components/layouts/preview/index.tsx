@@ -1,14 +1,24 @@
 import { Text, View } from "@aws-amplify/ui-react";
+import { StorageImage } from "@aws-amplify/ui-react-storage";
+import Link from "next/link";
 
 const NewsContent = (props: { type: string; content: string }) => {
   const { type, content } = props;
 
   switch (type) {
     case "image":
-      return content;
+      return (
+        <View>
+          <StorageImage alt={content} path={content} />
+        </View>
+      );
 
-    case "video":
-      return content;
+    case "url":
+      return (
+        <View>
+          <Link href={content}>Click 🌐</Link>
+        </View>
+      );
 
     case "h1":
       return (

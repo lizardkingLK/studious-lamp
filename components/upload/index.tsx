@@ -9,15 +9,17 @@ import {
 import { Fragment } from "react";
 
 export default function UploadFile({
+  fileType,
   acceptedFileTypes,
   files,
   setFiles,
   uploadFile,
 }: {
+  fileType: string;
   acceptedFileTypes: string[];
   files: never[] | File[];
   setFiles: React.Dispatch<React.SetStateAction<never[] | File[]>>;
-  uploadFile: (file: File) => void;
+  uploadFile: (file: File, fileType: string) => void;
 }) {
   const hiddenInput = React.useRef<HTMLInputElement | null>(null);
 
@@ -62,7 +64,7 @@ export default function UploadFile({
           justifyContent={"space-between"}
         >
           <Text color={"font.secondary"}>{file.name}</Text>
-          <Button onClick={() => uploadFile(file)}>ADD</Button>
+          <Button onClick={() => uploadFile(file, fileType)}>ADD</Button>
         </Flex>
       ))}
     </Fragment>
